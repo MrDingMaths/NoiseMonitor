@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noise Monitor</title>
+    <link rel="stylesheet" href="noise-monitor.css">
+</head>
+<body>
+
+<div id="noise-monitor" class="vnl-wrapper">
+
+    <!-- Header -->
+    <div class="vnl-header">
+        <div class="vnl-header-left">
+            <h2 class="vnl-title">Classroom Noise Monitor</h2>
+        </div>
+        <button id="vnl-btn-fullscreen" class="vnl-icon-btn" title="Toggle Fullscreen">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- View: Permission / Start -->
+    <div id="vnl-view-start" class="vnl-view active">
+        <div class="vnl-permission-card">
+            <div class="vnl-emoji-hero">🎙️</div>
+            <h3>Enable Microphone</h3>
+            <p>To monitor the noise levels, we need access to your device's microphone. No audio is recorded or sent to a server.</p>
+            <button id="vnl-btn-activate" class="vnl-btn-primary">Start Monitoring</button>
+        </div>
+    </div>
+
+    <!-- View: Active Monitor -->
+    <div id="vnl-view-monitor" class="vnl-view">
+
+        <!-- The Visualizer -->
+        <div class="vnl-stage">
+
+            <!-- Left: Cards Panel -->
+            <div class="vnl-cards-panel">
+                <div id="vnl-emoji-display" class="vnl-emoji-main">😊</div>
+                <div id="vnl-score-display" class="vnl-stat-card vnl-score-display" style="display:none">
+                    <span class="vnl-stat-label">Grade</span>
+                    <span id="vnl-score-value" class="vnl-stat-value">A</span>
+                </div>
+                <div id="vnl-streak-display" class="vnl-stat-card" style="display:none">
+                    <span class="vnl-stat-label">Streak</span>
+                    <span id="vnl-streak-value" class="vnl-stat-value">0:00</span>
+                    <span id="vnl-best-streak" class="vnl-best-streak">Best: 0:00</span>
+                </div>
+                <div id="vnl-over-limit" class="vnl-stat-card">
+                    <span class="vnl-stat-label">Over Limit</span>
+                    <span id="vnl-over-limit-value" class="vnl-stat-value">0:00</span>
+                </div>
+            </div>
+
+            <!-- Middle: Volume Meter Bar -->
+            <div class="vnl-bar-panel">
+                <div class="vnl-meter-container">
+                    <div class="vnl-meter-bg">
+                        <!-- The Limit Line -->
+                        <div id="vnl-limit-line" class="vnl-limit-line">
+                            <span>TOO LOUD</span>
+                        </div>
+                        <!-- The Liquid Fill -->
+                        <div id="vnl-meter-fill" class="vnl-meter-fill vnl-fill-calm"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Line Graph -->
+            <div class="vnl-graph-panel">
+                <canvas id="vnl-graph"></canvas>
+            </div>
+
+            <!-- Alarm Overlay -->
+            <div id="vnl-alarm-overlay" class="vnl-alarm-overlay">
+                <div class="vnl-alarm-content">
+                    <div id="vnl-alarm-countdown" class="vnl-alarm-countdown">5</div>
+                    <h2>TOO LOUD!</h2>
+                </div>
+            </div>
+
+            <!-- Toast -->
+            <div id="vnl-toast" class="vnl-toast">Nice work! 👍</div>
+        </div>
+
+        <!-- Controls Toolbar -->
+        <div class="vnl-controls">
+            <div class="vnl-control-group">
+                <label>Microphone Sensitivity</label>
+                <input type="range" id="vnl-in-sensitivity" min="0" max="100" value="50">
+            </div>
+            <div class="vnl-control-group">
+                <label>Max Volume Limit</label>
+                <input type="range" id="vnl-in-threshold" min="10" max="95" value="70">
+            </div>
+            <button id="vnl-btn-pause" class="vnl-btn-secondary">Pause</button>
+            <button id="vnl-btn-reset" class="vnl-btn-secondary">Reset</button>
+            <button id="vnl-btn-stop" class="vnl-btn-secondary">Stop</button>
+        </div>
+    </div>
+
+</div>
+
+<script src="noise-monitor.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,470 @@
+/* ===========================
+   Noise Monitor - Styles
+   =========================== */
+
+/* --- Root Container --- */
+.vnl-wrapper {
+    --vnl-bg: #fff;
+    --vnl-text: #2c3e50;
+    --vnl-calm: #10b981;
+    --vnl-warn: #f59e0b;
+    --vnl-loud: #ef4444;
+    --vnl-font: Arial, Helvetica, sans-serif;
+
+    font-family: var(--vnl-font);
+    background: var(--vnl-bg);
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    max-width: 800px;
+    margin: 20px auto;
+    overflow: hidden;
+    position: relative;
+    color: var(--vnl-text);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+.vnl-wrapper:fullscreen {
+    max-width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+}
+
+/* --- Header --- */
+.vnl-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: #f7fafc;
+    border-bottom: 2px solid #e2e8f0;
+    z-index: 20;
+}
+
+.vnl-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.vnl-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.vnl-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #718096;
+    padding: 5px;
+}
+
+.vnl-icon-btn:hover {
+    color: var(--vnl-text);
+}
+
+/* --- Views --- */
+.vnl-view {
+    display: none;
+    flex: 1;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.vnl-view.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- Start Screen --- */
+#vnl-view-start {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.vnl-permission-card {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+}
+
+.vnl-emoji-hero {
+    font-size: 4rem;
+    margin-bottom: 10px;
+    animation: vnl-wave 2s infinite;
+}
+
+.vnl-btn-primary {
+    background: #2b6cb0;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: transform 0.1s;
+}
+
+.vnl-btn-primary:hover {
+    background: #2c5282;
+    transform: translateY(-2px);
+}
+
+/* --- Monitor Stage --- */
+.vnl-stage {
+    flex: 1;
+    position: relative;
+    background: #edf2f7;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    transition: background 0.3s;
+    min-height: 0;
+}
+
+.vnl-stage.stage-warn {
+    background: #ffedd5;
+}
+
+.vnl-stage.stage-loud {
+    background: #fee2e2;
+}
+
+/* --- Left Cards Panel --- */
+.vnl-cards-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 150px;
+    flex-shrink: 0;
+    padding: 12px 10px;
+    gap: 8px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+.vnl-stat-card {
+    background: rgba(255, 255, 255, 0.75);
+    border-radius: 10px;
+    padding: 8px 10px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box;
+}
+
+.vnl-stat-card.active .vnl-stat-value {
+    color: var(--vnl-loud);
+}
+
+.vnl-stat-label {
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #000000;
+    margin-bottom: 2px;
+}
+
+.vnl-stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    line-height: 1.2;
+}
+
+/* --- Emoji --- */
+.vnl-emoji-main {
+    font-size: 4rem;
+    margin-bottom: 4px;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.1s;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+/* --- Meter Bar Panel (meter only) --- */
+.vnl-bar-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 64px;
+    flex-shrink: 0;
+    padding: 12px 8px 8px;
+    box-sizing: border-box;
+}
+
+/* --- Volume Meter --- */
+.vnl-meter-container {
+    width: 56px;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+    min-height: 0;
+}
+
+.vnl-meter-bg {
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    border-left: 2px solid rgba(0, 0, 0, 0.05);
+    border-right: 2px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.vnl-meter-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0%;
+    transition: height 0.1s ease-out, background-color 0.3s;
+    opacity: 0.8;
+}
+
+.vnl-fill-calm {
+    background-color: var(--vnl-calm);
+    box-shadow: 0 0 20px var(--vnl-calm);
+}
+
+.vnl-fill-warn {
+    background-color: var(--vnl-warn);
+    box-shadow: 0 0 20px var(--vnl-warn);
+}
+
+/* --- Limit Line --- */
+.vnl-limit-line {
+    position: absolute;
+    bottom: 70%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #2c3e50;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.vnl-limit-line span {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 3px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    background: #2c3e50;
+    color: white;
+    padding: 1px 3px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+/* --- Right Graph Panel --- */
+.vnl-graph-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 12px 10px 4px;
+    min-width: 0;
+}
+
+#vnl-graph {
+    flex: 1;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.35);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    display: block;
+    min-height: 0;
+}
+
+/* --- Alarm Overlay --- */
+.vnl-alarm-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(220, 38, 38, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s;
+    backdrop-filter: blur(2px);
+}
+
+.vnl-alarm-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+    animation: vnl-flash 0.5s infinite;
+}
+
+.vnl-alarm-content {
+    text-align: center;
+    color: white;
+    transform: scale(0.8);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.vnl-alarm-overlay.active .vnl-alarm-content {
+    transform: scale(1);
+}
+
+.vnl-emoji-alarm {
+    font-size: 8rem;
+}
+
+.vnl-alarm-content h2 {
+    font-size: 3rem;
+    margin: 0;
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+/* --- Controls --- */
+.vnl-controls {
+    background: white;
+    padding: 10px 20px;
+    border-top: 2px solid #e2e8f0;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 20;
+}
+
+.vnl-control-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.vnl-control-group label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #718096;
+    margin-bottom: 5px;
+}
+
+.vnl-wrapper input[type="range"] {
+    width: 100%;
+    accent-color: #2b6cb0;
+    cursor: pointer;
+}
+
+.vnl-btn-secondary {
+    background: #edf2f7;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    color: #4a5568;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.vnl-btn-secondary:hover {
+    background: #e2e8f0;
+    color: #ef4444;
+}
+
+/* --- Responsive --- */
+@media (max-width: 600px) {
+    .vnl-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .vnl-cards-panel {
+        width: 110px;
+    }
+}
+
+/* --- Warning Zone Pulse --- */
+@keyframes vnl-warn-pulse {
+    0%, 100% { box-shadow: inset 0 0 0 0 rgba(245, 158, 11, 0); }
+    50%       { box-shadow: inset 0 0 20px 4px rgba(245, 158, 11, 0.2); }
+}
+.vnl-stage.stage-warn {
+    animation: vnl-warn-pulse 2s ease-in-out infinite;
+}
+
+/* --- Alarm Countdown --- */
+.vnl-alarm-countdown {
+    font-size: 9rem;
+    font-weight: 900;
+    color: white;
+    line-height: 1;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+/* --- Toast --- */
+.vnl-toast {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(16, 185, 129, 0.95);
+    color: white;
+    padding: 12px 28px;
+    border-radius: 30px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    z-index: 60;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+}
+.vnl-toast.active {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* --- Best Streak Label --- */
+.vnl-best-streak {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: #718096;
+    margin-top: 1px;
+}
+
+/* --- Score Grade Colors --- */
+.vnl-score-display .vnl-stat-value { font-size: 3rem; }
+.vnl-score-display .grade-a { color: var(--vnl-calm); }
+.vnl-score-display .grade-b { color: #38a169; }
+.vnl-score-display .grade-c { color: var(--vnl-warn); }
+.vnl-score-display .grade-d { color: #dd6b20; }
+.vnl-score-display .grade-f { color: var(--vnl-loud); }
+
+/* --- Over Limit always red --- */
+#vnl-over-limit .vnl-stat-value { color: var(--vnl-loud); }
+
+/* --- Animations --- */
+@keyframes vnl-wave {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+
+@keyframes vnl-flash {
+    0%, 100% { background: rgba(220, 38, 38, 0.85); }
+    50% { background: rgba(220, 38, 38, 0.95); }
+}

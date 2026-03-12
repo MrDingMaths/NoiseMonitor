@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/james/OneDrive/Admin/WebApps/NoiseMonitor -type f -name *)"
+    ]
+  }
+}
