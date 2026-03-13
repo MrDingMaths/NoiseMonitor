@@ -19,6 +19,9 @@
     const EMOJI_MAX_SCALE = 0.5;
     const WARNING_ZONE_RATIO = 0.7;
 
+    const STORAGE_KEY_CLASSES = 'noise-monitor_classes';
+    const STORAGE_KEY_ACTIVE_CLASS = 'noise-monitor_activeClass';
+
     // --- Container ---
     const CONTAINER = document.getElementById(CONTAINER_ID);
     if (!CONTAINER) return;
@@ -44,7 +47,10 @@
         streakMs: 0,
         bestStreakMs: 0,
         alarmActive: false,
-        alarmTicks: 0
+        alarmTicks: 0,
+        warningCount: 0,
+        lastAlarmCycle: 0,
+        activeClass: ''
     };
 
     // --- DOM Elements ---
@@ -60,7 +66,9 @@
             reset: CONTAINER.querySelector('#vnl-btn-reset'),
             fullscreen: CONTAINER.querySelector('#vnl-btn-fullscreen'),
             sensitivity: CONTAINER.querySelector('#vnl-in-sensitivity'),
-            threshold: CONTAINER.querySelector('#vnl-in-threshold')
+            threshold: CONTAINER.querySelector('#vnl-in-threshold'),
+            classSelect: CONTAINER.querySelector('#vnl-class-select'),
+            classNewName: CONTAINER.querySelector('#vnl-class-new-name')
         },
         visuals: {
             fill: CONTAINER.querySelector('#vnl-meter-fill'),
@@ -73,6 +81,11 @@
             overLimitValue: CONTAINER.querySelector('#vnl-over-limit-value'),
             toast: CONTAINER.querySelector('#vnl-toast'),
             countdown: CONTAINER.querySelector('#vnl-alarm-countdown'),
+            warningCount: CONTAINER.querySelector('#vnl-warning-count'),
+            historyPanel: CONTAINER.querySelector('#vnl-class-history'),
+            activeClassName: CONTAINER.querySelector('#vnl-active-class-name'),
+            classBestStreak: CONTAINER.querySelector('#vnl-class-best-streak'),
+            historyTableWrap: CONTAINER.querySelector('#vnl-history-table-wrap'),
             scoreDisplay: CONTAINER.querySelector('#vnl-score-display'),
             scoreValue: CONTAINER.querySelector('#vnl-score-value'),
             streakDisplay: CONTAINER.querySelector('#vnl-streak-display'),
@@ -83,12 +96,11 @@
 
     // --- LocalStorage ---
     function loadSettings() {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        var saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
-            const data = JSON.parse(saved);
+            var data = JSON.parse(saved);
             STATE.sensitivity = parseInt(data.sens) || DEFAULT_SENSITIVITY;
             STATE.threshold = parseInt(data.thresh) || DEFAULT_THRESHOLD;
-            STATE.bestStreakMs = parseInt(data.bestStreakMs) || 0;
             els.controls.sensitivity.value = STATE.sensitivity;
             els.controls.threshold.value = STATE.threshold;
             updateThresholdUI();
@@ -98,20 +110,145 @@
     function saveSettings() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
             sens: els.controls.sensitivity.value,
-            thresh: els.controls.threshold.value,
-            bestStreakMs: STATE.bestStreakMs
+            thresh: els.controls.threshold.value
         }));
     }
 
+    // --- Class Storage ---
+    function loadClasses() {
+        var raw = localStorage.getItem(STORAGE_KEY_CLASSES);
+        return raw ? JSON.parse(raw) : {};
+    }
+
+    function saveClasses(classes) {
+        localStorage.setItem(STORAGE_KEY_CLASSES, JSON.stringify(classes));
+    }
+
+    function setActiveClass(name) {
+        STATE.activeClass = name;
+        localStorage.setItem(STORAGE_KEY_ACTIVE_CLASS, name);
+        var classes = loadClasses();
+        STATE.bestStreakMs = (classes[name] && classes[name].bestStreakMs) || 0;
+        updateHistoryPanel();
+    }
+
     function saveRecords() {
-        var saved = localStorage.getItem(STORAGE_KEY);
-        var data = saved ? JSON.parse(saved) : {};
-        data.bestStreakMs = STATE.bestStreakMs;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        if (!STATE.activeClass) return;
+        var classes = loadClasses();
+        var cls = classes[STATE.activeClass];
+        if (!cls) return;
+        if (STATE.bestStreakMs > cls.bestStreakMs) {
+            cls.bestStreakMs = STATE.bestStreakMs;
+            saveClasses(classes);
+        }
+    }
+
+    function saveSessionToActiveClass() {
+        var name = STATE.activeClass;
+        if (!name || STATE.totalMs < 3000) return;
+        var classes = loadClasses();
+        if (!classes[name]) classes[name] = { bestStreakMs: 0, sessions: [] };
+        var cls = classes[name];
+        if (STATE.bestStreakMs > cls.bestStreakMs) cls.bestStreakMs = STATE.bestStreakMs;
+        var score = STATE.totalMs > 0 ? Math.round((STATE.totalMs - STATE.overLimitMs) / STATE.totalMs * 100) : 100;
+        var grade = score >= 90 ? 'A' : score >= 80 ? 'B' : score >= 70 ? 'C' : score >= 60 ? 'D' : 'F';
+        cls.sessions.push({
+            date: new Date().toLocaleDateString(),
+            duration: STATE.totalMs,
+            score: score,
+            grade: grade,
+            overLimitMs: STATE.overLimitMs,
+            bestStreakMs: STATE.bestStreakMs
+        });
+        if (cls.sessions.length > 20) cls.sessions = cls.sessions.slice(-20);
+        saveClasses(classes);
+    }
+
+    function populateClassSelect() {
+        var classes = loadClasses();
+        var active = localStorage.getItem(STORAGE_KEY_ACTIVE_CLASS) || '';
+        var sel = els.controls.classSelect;
+        sel.innerHTML = '<option value="">— no class selected —</option>';
+        Object.keys(classes).forEach(function (name) {
+            var opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            if (name === active) opt.selected = true;
+            sel.appendChild(opt);
+        });
+        var newOpt = document.createElement('option');
+        newOpt.value = '__new__';
+        newOpt.textContent = '＋ New class\u2026';
+        sel.appendChild(newOpt);
+        if (active) setActiveClass(active);
+    }
+
+    function deleteSession(sessionIdx) {
+        var name = STATE.activeClass;
+        if (!name) return;
+        var classes = loadClasses();
+        var cls = classes[name];
+        if (!cls || !cls.sessions[sessionIdx]) return;
+        cls.sessions.splice(sessionIdx, 1);
+        cls.bestStreakMs = cls.sessions.reduce(function (max, s) {
+            return Math.max(max, s.bestStreakMs || 0);
+        }, 0);
+        saveClasses(classes);
+        STATE.bestStreakMs = cls.bestStreakMs;
+        updateHistoryPanel();
+    }
+
+    function updateHistoryPanel() {
+        var name = STATE.activeClass;
+        if (!name) {
+            els.visuals.historyPanel.style.display = 'none';
+            return;
+        }
+        els.visuals.historyPanel.style.display = '';
+        els.visuals.activeClassName.textContent = name;
+        var classes = loadClasses();
+        var cls = classes[name] || { bestStreakMs: 0, sessions: [] };
+        els.visuals.classBestStreak.textContent = formatTime(cls.bestStreakMs);
+        var totalSessions = cls.sessions.length;
+        var startIdx = Math.max(0, totalSessions - 5);
+        var sessions = cls.sessions.slice(startIdx).reverse();
+        if (sessions.length === 0) {
+            els.visuals.historyTableWrap.innerHTML = '<p class="vnl-history-empty">No sessions yet for this class.</p>';
+            return;
+        }
+        var rows = sessions.map(function (s, i) {
+            var actualIdx = totalSessions - 1 - i;
+            return '<tr><td>' + s.date + '</td><td>' + formatTime(s.duration) + '</td><td class="grade-' + s.grade.toLowerCase() + '">' + s.grade + '</td><td><button class="vnl-btn-delete-session" data-idx="' + actualIdx + '" title="Delete session">✕</button></td></tr>';
+        }).join('');
+        els.visuals.historyTableWrap.innerHTML = '<table class="vnl-history-table"><thead><tr><th>Date</th><th>Duration</th><th>Grade</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>';
+        els.visuals.historyTableWrap.querySelectorAll('.vnl-btn-delete-session').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var idx = parseInt(this.getAttribute('data-idx'));
+                if (confirm('Delete this session?')) {
+                    deleteSession(idx);
+                }
+            });
+        });
     }
 
     // --- Audio ---
     async function startAudio() {
+        // Handle class selection before acquiring mic
+        var sel = els.controls.classSelect;
+        var newInput = els.controls.classNewName;
+        if (sel.value === '__new__') {
+            var newName = newInput.value.trim();
+            if (!newName) { alert('Please enter a class name.'); return; }
+            var classes = loadClasses();
+            if (!classes[newName]) { classes[newName] = { bestStreakMs: 0, sessions: [] }; saveClasses(classes); }
+            populateClassSelect();
+            sel.value = newName;
+            newInput.style.display = 'none';
+            setActiveClass(newName);
+        } else {
+            setActiveClass(sel.value);
+        }
+
         try {
             STATE.stream = await navigator.mediaDevices.getUserMedia({
                 audio: {
@@ -152,6 +289,8 @@
     }
 
     function stopAudio() {
+        saveSessionToActiveClass();
+
         if (STATE.stream) STATE.stream.getTracks().forEach(function (track) { track.stop(); });
         if (STATE.audioCtx) STATE.audioCtx.close();
         if (STATE.intervalId) clearInterval(STATE.intervalId);
@@ -172,9 +311,12 @@
         STATE.streakMs = 0;
         STATE.alarmActive = false;
         STATE.alarmTicks = 0;
+        STATE.warningCount = 0;
+        STATE.lastAlarmCycle = 0;
 
         els.views.monitor.classList.remove('active');
         els.views.start.classList.add('active');
+        updateHistoryPanel();
 
         els.visuals.alarm.classList.remove('active');
         els.visuals.fill.style.height = '0%';
@@ -264,15 +406,22 @@
 
         if (n < 2) return;
 
-        // Build the polyline path (all points spread across full width)
+        // Build a smooth curve path using quadratic bezier midpoint smoothing
         function buildPath() {
             ctx.beginPath();
-            for (var i = 0; i < n; i++) {
-                var x = (i / (n - 1)) * w;
-                var y = h - data[i] * h;
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
+            var x0 = 0;
+            var y0 = h - data[0] * h;
+            ctx.moveTo(x0, y0);
+            for (var i = 1; i < n; i++) {
+                var x1 = (i / (n - 1)) * w;
+                var y1 = h - data[i] * h;
+                var mx = (x0 + x1) / 2;
+                var my = (y0 + y1) / 2;
+                ctx.quadraticCurveTo(x0, y0, mx, my);
+                x0 = x1;
+                y0 = y1;
             }
+            ctx.lineTo(x0, y0);
         }
 
         ctx.lineWidth = 2;
@@ -354,6 +503,17 @@
             STATE.alarmTicks++;
             var countdownSec = 5 - (Math.floor(STATE.alarmTicks * TICK_INTERVAL / 1000) % 5);
             els.visuals.countdown.textContent = countdownSec === 0 ? 5 : countdownSec;
+
+            // Every completed 5-second cycle → flash and increment warning count
+            var currentCycle = Math.floor(STATE.alarmTicks * TICK_INTERVAL / 5000);
+            if (currentCycle > STATE.lastAlarmCycle) {
+                STATE.lastAlarmCycle = currentCycle;
+                STATE.warningCount++;
+                var overlay = els.visuals.alarm;
+                overlay.classList.add('vnl-flash-hit');
+                setTimeout(function () { overlay.classList.remove('vnl-flash-hit'); }, 350);
+                els.visuals.warningCount.textContent = '\u26A0 ' + STATE.warningCount + ' warning' + (STATE.warningCount !== 1 ? 's' : '');
+            }
         }
 
         // Streak tracking
@@ -417,6 +577,7 @@
             STATE.alarmCooldown = ALARM_COOLDOWN_TICKS;
         } else {
             STATE.alarmTicks = 0;
+            STATE.lastAlarmCycle = 0;
             els.visuals.countdown.textContent = '5';
             els.visuals.alarm.classList.remove('active');
         }
@@ -435,12 +596,17 @@
         STATE.totalMs = 0;
         STATE.lastTimestamp = 0;
         STATE.streakMs = 0;
-        STATE.bestStreakMs = 0;
+        // Reload best streak from class so reset doesn't wipe persisted record
+        var classes = loadClasses();
+        STATE.bestStreakMs = STATE.activeClass ? ((classes[STATE.activeClass] || {}).bestStreakMs || 0) : 0;
         STATE.alarmCooldown = 0;
         STATE.alarmActive = false;
         STATE.alarmTicks = 0;
+        STATE.warningCount = 0;
+        STATE.lastAlarmCycle = 0;
 
         els.visuals.alarm.classList.remove('active');
+        els.visuals.warningCount.textContent = '';
         els.visuals.fill.style.height = '0%';
         els.visuals.overLimitValue.textContent = '0:00';
         els.visuals.overLimitDisplay.classList.remove('active');
@@ -458,6 +624,18 @@
     }
 
     // --- Event Listeners ---
+    els.controls.classSelect.addEventListener('change', function () {
+        var val = this.value;
+        if (val === '__new__') {
+            els.controls.classNewName.style.display = '';
+            els.controls.classNewName.focus();
+            setActiveClass('');
+        } else {
+            els.controls.classNewName.style.display = 'none';
+            setActiveClass(val);
+        }
+    });
+
     els.controls.activate.addEventListener('click', startAudio);
     els.controls.stop.addEventListener('click', stopAudio);
     els.controls.pause.addEventListener('click', togglePause);
@@ -485,4 +663,5 @@
     // --- Init ---
     loadSettings();
     updateThresholdUI();
+    populateClassSelect();
 })();

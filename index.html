@@ -27,9 +27,21 @@
         <div class="vnl-permission-card">
             <div class="vnl-emoji-hero">🎙️</div>
             <h3>Enable Microphone</h3>
-            <p>To monitor the noise levels, we need access to your device's microphone. No audio is recorded or sent to a server.</p>
+            <p>No audio is recorded or sent to a server.</p>
+            <div class="vnl-class-row">
+                <label for="vnl-class-select">Class</label>
+                <select id="vnl-class-select" class="vnl-class-select">
+                    <option value="">— no class selected —</option>
+                    <option value="__new__">＋ New class…</option>
+                </select>
+                <input type="text" id="vnl-class-new-name" class="vnl-class-new-input" placeholder="Class name…" style="display:none">
+            </div>
             <button id="vnl-btn-activate" class="vnl-btn-primary">Start Monitoring</button>
         </div>
+        <details id="vnl-class-history" class="vnl-history-panel" style="display:none">
+            <summary>Class history: <strong id="vnl-active-class-name"></strong> &nbsp;·&nbsp; Best streak: <span id="vnl-class-best-streak">—</span></summary>
+            <div id="vnl-history-table-wrap"></div>
+        </details>
     </div>
 
     <!-- View: Active Monitor -->
@@ -80,6 +92,7 @@
                 <div class="vnl-alarm-content">
                     <div id="vnl-alarm-countdown" class="vnl-alarm-countdown">5</div>
                     <h2>TOO LOUD!</h2>
+                    <div id="vnl-warning-count" class="vnl-warning-count"></div>
                 </div>
             </div>
 
