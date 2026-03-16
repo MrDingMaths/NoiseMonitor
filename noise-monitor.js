@@ -388,14 +388,6 @@
         ctx.setLineDash([]);
         ctx.restore();
 
-        // "MAX" label bottom-left of threshold line
-        ctx.save();
-        ctx.fillStyle = 'rgba(239, 68, 68, 0.65)';
-        ctx.font = 'bold 18px system-ui, sans-serif';
-        ctx.textAlign = 'left';
-        ctx.fillText('TOO LOUD', 4, threshY - 4);
-        ctx.restore();
-
         // Total time label — top-right
         ctx.save();
         ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';

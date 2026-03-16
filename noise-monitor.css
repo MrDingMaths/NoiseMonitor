@@ -4,6 +4,8 @@
 
 /* --- Root Container --- */
 .vnl-wrapper {
+    zoom: 1.25;
+
     --vnl-bg: #fff;
     --vnl-text: #2c3e50;
     --vnl-calm: #10b981;
@@ -103,6 +105,14 @@
     max-width: 400px;
 }
 
+.vnl-permission-card h3 {
+    font-size: 1.2rem;
+}
+
+.vnl-permission-card p {
+    font-size: 0.875rem;
+}
+
 .vnl-emoji-hero {
     font-size: 3.5rem;
     margin-bottom: 10px;
@@ -139,7 +149,7 @@
 }
 
 .vnl-class-row label {
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     font-weight: 700;
     color: #4a5568;
 }
@@ -149,7 +159,7 @@
     padding: 6px 8px;
     border: 1px solid #cbd5e0;
     border-radius: 6px;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     background: white;
     cursor: pointer;
 }
@@ -159,7 +169,7 @@
     padding: 6px 8px;
     border: 1px solid #cbd5e0;
     border-radius: 6px;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     box-sizing: border-box;
 }
 
@@ -173,27 +183,27 @@
     max-width: 400px;
     box-sizing: border-box;
     text-align: left;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
 }
 
 .vnl-history-panel summary {
     cursor: pointer;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     color: #2d3748;
     list-style: none;
     padding: 2px 0;
 }
 
 .vnl-history-panel summary::-webkit-details-marker { display: none; }
-.vnl-history-panel summary::before { content: '▶ '; font-size: 0.7rem; }
-.vnl-history-panel[open] summary::before { content: '▼ '; font-size: 0.7rem; }
+.vnl-history-panel summary::before { content: '▶ '; font-size: 0.75rem; }
+.vnl-history-panel[open] summary::before { content: '▼ '; font-size: 0.75rem; }
 
 .vnl-history-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 8px;
-    font-size: 0.85rem;
+    font-size: 0.875rem;
 }
 
 .vnl-history-table th {
@@ -202,7 +212,7 @@
     color: #718096;
     padding: 3px 6px;
     border-bottom: 1px solid #e2e8f0;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
@@ -215,7 +225,7 @@
 
 .vnl-history-empty {
     color: #a0aec0;
-    font-size: 0.85rem;
+    font-size: 0.875rem;
     margin: 8px 0 2px;
 }
 
@@ -268,7 +278,7 @@
 
 .vnl-stat-label {
     display: block;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -278,7 +288,7 @@
 
 .vnl-stat-value {
     display: block;
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: #2d3748;
     line-height: 1.2;
@@ -360,7 +370,7 @@
     left: 50%;
     transform: translateX(-50%);
     bottom: 3px;
-    font-size: 0.75rem;
+    font-size: 1.1rem;
     font-weight: bold;
     background: #2c3e50;
     color: white;
@@ -451,7 +461,7 @@
 }
 
 .vnl-control-group label {
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     font-weight: 700;
     color: #718096;
     margin-bottom: 5px;
@@ -535,14 +545,14 @@
 /* --- Best Streak Label --- */
 .vnl-best-streak {
     display: block;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 400;
     color: #718096;
     margin-top: 1px;
 }
 
 /* --- Score Grade Colors --- */
-.vnl-score-display .vnl-stat-value { font-size: 3.5rem; }
+.vnl-score-display .vnl-stat-value { font-size: 5rem; }
 .vnl-score-display .grade-a { color: var(--vnl-calm); }
 .vnl-score-display .grade-b { color: #38a169; }
 .vnl-score-display .grade-c { color: var(--vnl-warn); }
@@ -555,7 +565,7 @@
     border: none;
     color: #a0aec0;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     padding: 2px 4px;
     border-radius: 4px;
     line-height: 1;
