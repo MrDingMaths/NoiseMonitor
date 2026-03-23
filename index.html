@@ -14,6 +14,7 @@
     <div class="vnl-header">
         <div class="vnl-header-left">
             <h2 class="vnl-title">Classroom Noise Monitor</h2>
+            <span id="vnl-active-class-header" class="vnl-class-chip" style="display:none"></span>
         </div>
         <button id="vnl-btn-fullscreen" class="vnl-icon-btn" title="Toggle Fullscreen">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -90,6 +91,7 @@
             <!-- Alarm Overlay -->
             <div id="vnl-alarm-overlay" class="vnl-alarm-overlay">
                 <div class="vnl-alarm-content">
+                    <div class="vnl-alarm-emoji">🚨</div>
                     <div id="vnl-alarm-countdown" class="vnl-alarm-countdown">5</div>
                     <h2>TOO LOUD!</h2>
                     <div id="vnl-warning-count" class="vnl-warning-count"></div>
@@ -97,22 +99,22 @@
             </div>
 
             <!-- Toast -->
-            <div id="vnl-toast" class="vnl-toast">Nice work! 👍</div>
+            <div id="vnl-toast" class="vnl-toast">✓ Nice work! 👍</div>
         </div>
 
         <!-- Controls Toolbar -->
         <div class="vnl-controls">
             <div class="vnl-control-group">
-                <label>Microphone Sensitivity</label>
+                <label>Microphone Sensitivity <span id="vnl-sensitivity-val" class="vnl-slider-val">50</span></label>
                 <input type="range" id="vnl-in-sensitivity" min="0" max="100" value="50">
             </div>
             <div class="vnl-control-group">
-                <label>Max Volume Limit</label>
+                <label>Max Volume Limit <span id="vnl-threshold-val" class="vnl-slider-val">70%</span></label>
                 <input type="range" id="vnl-in-threshold" min="10" max="95" value="70">
             </div>
             <button id="vnl-btn-pause" class="vnl-btn-secondary">Pause</button>
             <button id="vnl-btn-reset" class="vnl-btn-secondary">Reset</button>
-            <button id="vnl-btn-stop" class="vnl-btn-secondary">Stop</button>
+            <button id="vnl-btn-stop" class="vnl-btn-secondary vnl-btn-danger">Stop</button>
         </div>
     </div>
 

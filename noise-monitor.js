@@ -68,7 +68,9 @@
             sensitivity: CONTAINER.querySelector('#vnl-in-sensitivity'),
             threshold: CONTAINER.querySelector('#vnl-in-threshold'),
             classSelect: CONTAINER.querySelector('#vnl-class-select'),
-            classNewName: CONTAINER.querySelector('#vnl-class-new-name')
+            classNewName: CONTAINER.querySelector('#vnl-class-new-name'),
+            sensitivityVal: CONTAINER.querySelector('#vnl-sensitivity-val'),
+            thresholdVal: CONTAINER.querySelector('#vnl-threshold-val')
         },
         visuals: {
             fill: CONTAINER.querySelector('#vnl-meter-fill'),
@@ -85,6 +87,7 @@
             historyPanel: CONTAINER.querySelector('#vnl-class-history'),
             activeClassName: CONTAINER.querySelector('#vnl-active-class-name'),
             classBestStreak: CONTAINER.querySelector('#vnl-class-best-streak'),
+            activeClassHeader: CONTAINER.querySelector('#vnl-active-class-header'),
             historyTableWrap: CONTAINER.querySelector('#vnl-history-table-wrap'),
             scoreDisplay: CONTAINER.querySelector('#vnl-score-display'),
             scoreValue: CONTAINER.querySelector('#vnl-score-value'),
@@ -95,6 +98,11 @@
     };
 
     // --- LocalStorage ---
+    function syncSliderDisplays() {
+        els.controls.sensitivityVal.textContent = STATE.sensitivity;
+        els.controls.thresholdVal.textContent = STATE.threshold + '%';
+    }
+
     function loadSettings() {
         var saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
@@ -105,6 +113,7 @@
             els.controls.threshold.value = STATE.threshold;
             updateThresholdUI();
         }
+        syncSliderDisplays();
     }
 
     function saveSettings() {
@@ -218,7 +227,7 @@
         }
         var rows = sessions.map(function (s, i) {
             var actualIdx = totalSessions - 1 - i;
-            return '<tr><td>' + s.date + '</td><td>' + formatTime(s.duration) + '</td><td class="grade-' + s.grade.toLowerCase() + '">' + s.grade + '</td><td><button class="vnl-btn-delete-session" data-idx="' + actualIdx + '" title="Delete session">✕</button></td></tr>';
+            return '<tr><td>' + s.date + '</td><td>' + formatTime(s.duration) + '</td><td><span class="vnl-grade-badge grade-' + s.grade.toLowerCase() + '">' + s.grade + '</span></td><td><button class="vnl-btn-delete-session" data-idx="' + actualIdx + '" title="Delete session">✕</button></td></tr>';
         }).join('');
         els.visuals.historyTableWrap.innerHTML = '<table class="vnl-history-table"><thead><tr><th>Date</th><th>Duration</th><th>Grade</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>';
         els.visuals.historyTableWrap.querySelectorAll('.vnl-btn-delete-session').forEach(function (btn) {
@@ -277,6 +286,12 @@
             STATE.isMonitoring = true;
             STATE.isPaused = false;
             els.controls.pause.textContent = 'Pause';
+            els.controls.pause.classList.remove('vnl-btn-paused');
+
+            if (STATE.activeClass) {
+                els.visuals.activeClassHeader.textContent = STATE.activeClass;
+                els.visuals.activeClassHeader.style.display = '';
+            }
 
             els.views.start.classList.remove('active');
             els.views.monitor.classList.add('active');
@@ -314,6 +329,9 @@
         STATE.warningCount = 0;
         STATE.lastAlarmCycle = 0;
 
+        els.visuals.activeClassHeader.style.display = 'none';
+        els.visuals.activeClassHeader.textContent = '';
+
         els.views.monitor.classList.remove('active');
         els.views.start.classList.add('active');
         updateHistoryPanel();
@@ -326,6 +344,7 @@
         els.visuals.scoreDisplay.style.display = 'none';
         els.visuals.streakDisplay.style.display = 'none';
         els.controls.pause.textContent = 'Pause';
+        els.controls.pause.classList.remove('vnl-btn-paused');
 
         var canvas = els.visuals.graph;
         canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
@@ -334,6 +353,7 @@
     function togglePause() {
         STATE.isPaused = !STATE.isPaused;
         els.controls.pause.textContent = STATE.isPaused ? 'Resume' : 'Pause';
+        els.controls.pause.classList.toggle('vnl-btn-paused', STATE.isPaused);
         if (!STATE.isPaused) {
             // Reset so first tick after resume uses default delta rather than stale gap
             STATE.lastTimestamp = 0;
@@ -524,7 +544,7 @@
         var grade = score >= 90 ? 'A' : score >= 80 ? 'B' : score >= 70 ? 'C' : score >= 60 ? 'D' : 'F';
         var gradeClass = 'grade-' + grade.toLowerCase();
         els.visuals.scoreValue.textContent = grade;
-        els.visuals.scoreValue.className = gradeClass;
+        els.visuals.scoreValue.className = 'vnl-stat-value ' + gradeClass;
         els.visuals.scoreDisplay.style.display = '';
 
         // Color stages
@@ -635,11 +655,13 @@
 
     els.controls.sensitivity.addEventListener('input', function (e) {
         STATE.sensitivity = parseInt(e.target.value);
+        els.controls.sensitivityVal.textContent = STATE.sensitivity;
         saveSettings();
     });
 
     els.controls.threshold.addEventListener('input', function (e) {
         STATE.threshold = parseInt(e.target.value);
+        els.controls.thresholdVal.textContent = STATE.threshold + '%';
         updateThresholdUI();
         saveSettings();
     });
