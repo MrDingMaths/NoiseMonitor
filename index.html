@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Noise Monitor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="noise-monitor.css">
 </head>
 <body>
@@ -14,6 +17,7 @@
     <div class="vnl-header">
         <div class="vnl-header-left">
             <h2 class="vnl-title">Classroom Noise Monitor</h2>
+            <span id="vnl-grade-badge-header" class="vnl-grade-badge-header" style="display:none">A</span>
             <span id="vnl-active-class-header" class="vnl-class-chip" style="display:none"></span>
         </div>
         <button id="vnl-btn-fullscreen" class="vnl-icon-btn" title="Toggle Fullscreen">
@@ -51,26 +55,16 @@
         <!-- The Visualizer -->
         <div class="vnl-stage">
 
-            <!-- Left: Cards Panel -->
-            <div class="vnl-cards-panel">
-                <div id="vnl-emoji-display" class="vnl-emoji-main">😊</div>
-                <div id="vnl-score-display" class="vnl-stat-card vnl-score-display" style="display:none">
-                    <span class="vnl-stat-label">Grade</span>
-                    <span id="vnl-score-value" class="vnl-stat-value">A</span>
+            <!-- Left: Meter Column -->
+            <div class="vnl-meter-col">
+                <div id="vnl-state-label" class="vnl-state-label">Nice and calm</div>
+                <div class="vnl-level-block">
+                    <div id="vnl-emoji-display" class="vnl-emoji-main">😊</div>
+                    <div class="vnl-level-readout">
+                        <div id="vnl-level-value" class="vnl-level-value">0</div>
+                        <div class="vnl-level-cap">noise level</div>
+                    </div>
                 </div>
-                <div id="vnl-streak-display" class="vnl-stat-card" style="display:none">
-                    <span class="vnl-stat-label">Streak</span>
-                    <span id="vnl-streak-value" class="vnl-stat-value">0:00</span>
-                    <span id="vnl-best-streak" class="vnl-best-streak">Best: 0:00</span>
-                </div>
-                <div id="vnl-over-limit" class="vnl-stat-card">
-                    <span class="vnl-stat-label">Over Limit</span>
-                    <span id="vnl-over-limit-value" class="vnl-stat-value">0:00</span>
-                </div>
-            </div>
-
-            <!-- Middle: Volume Meter Bar -->
-            <div class="vnl-bar-panel">
                 <div class="vnl-meter-container">
                     <div class="vnl-meter-bg">
                         <!-- The Limit Line -->
@@ -83,9 +77,30 @@
                 </div>
             </div>
 
-            <!-- Right: Line Graph -->
-            <div class="vnl-graph-panel">
-                <canvas id="vnl-graph"></canvas>
+            <!-- Right: Stats + Graph -->
+            <div class="vnl-right-col">
+                <div class="vnl-stats-row">
+                    <div id="vnl-score-display" class="vnl-stat-card vnl-score-display" style="display:none">
+                        <span class="vnl-stat-label">Grade</span>
+                        <span id="vnl-score-value" class="vnl-stat-value">A</span>
+                    </div>
+                    <div id="vnl-streak-display" class="vnl-stat-card" style="display:none">
+                        <span class="vnl-stat-label">Streak</span>
+                        <span id="vnl-streak-value" class="vnl-stat-value">0:00</span>
+                        <span id="vnl-best-streak" class="vnl-best-streak">Best: 0:00</span>
+                    </div>
+                    <div id="vnl-over-limit" class="vnl-stat-card">
+                        <span class="vnl-stat-label">Over Limit</span>
+                        <span id="vnl-over-limit-value" class="vnl-stat-value">0:00</span>
+                    </div>
+                </div>
+                <div class="vnl-graph-panel">
+                    <div class="vnl-graph-header">
+                        <span class="vnl-graph-title">Last 5 minutes</span>
+                        <span id="vnl-graph-limit" class="vnl-graph-limit">limit 70</span>
+                    </div>
+                    <canvas id="vnl-graph"></canvas>
+                </div>
             </div>
 
             <!-- Alarm Overlay -->

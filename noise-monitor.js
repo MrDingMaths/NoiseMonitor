@@ -18,6 +18,7 @@
     const ALARM_COOLDOWN_TICKS = 6;     // ~3 seconds at 2Hz
     const EMOJI_MAX_SCALE = 0.5;
     const WARNING_ZONE_RATIO = 0.7;
+    const GRAPH_WINDOW_TICKS = 1200;  // 5 min at 250ms
 
     const STORAGE_KEY_CLASSES = 'noise-monitor_classes';
     const STORAGE_KEY_ACTIVE_CLASS = 'noise-monitor_activeClass';
@@ -93,7 +94,12 @@
             scoreValue: CONTAINER.querySelector('#vnl-score-value'),
             streakDisplay: CONTAINER.querySelector('#vnl-streak-display'),
             streakValue: CONTAINER.querySelector('#vnl-streak-value'),
-            bestStreak: CONTAINER.querySelector('#vnl-best-streak')
+            bestStreak: CONTAINER.querySelector('#vnl-best-streak'),
+            stateLabel: CONTAINER.querySelector('#vnl-state-label'),
+            levelValue: CONTAINER.querySelector('#vnl-level-value'),
+            meterCol: CONTAINER.querySelector('.vnl-meter-col'),
+            graphLimit: CONTAINER.querySelector('#vnl-graph-limit'),
+            gradeBadgeHeader: CONTAINER.querySelector('#vnl-grade-badge-header')
         }
     };
 
@@ -346,6 +352,11 @@
         els.controls.pause.textContent = 'Pause';
         els.controls.pause.classList.remove('vnl-btn-paused');
 
+        els.visuals.levelValue.textContent = '0';
+        els.visuals.stateLabel.textContent = 'Nice and calm';
+        els.visuals.meterCol.className = 'vnl-meter-col vnl-tone-calm';
+        els.visuals.gradeBadgeHeader.style.display = 'none';
+
         var canvas = els.visuals.graph;
         canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
     }
@@ -398,7 +409,7 @@
 
         // Threshold dashed line (draw even with n < 2)
         ctx.save();
-        ctx.strokeStyle = 'rgba(239, 68, 68, 0.55)';
+        ctx.strokeStyle = 'rgba(192, 82, 47, 0.55)';
         ctx.lineWidth = 1.5;
         ctx.setLineDash([6, 4]);
         ctx.beginPath();
@@ -410,8 +421,8 @@
 
         // Total time label — top-right
         ctx.save();
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-        ctx.font = 'bold 22px system-ui, sans-serif';
+        ctx.fillStyle = 'rgba(26, 34, 48, 0.55)';
+        ctx.font = 'bold 20px system-ui, sans-serif';
         ctx.textAlign = 'right';
         ctx.fillText(formatTime(STATE.totalMs), w - 14, 26);
         ctx.restore();
@@ -446,7 +457,7 @@
         ctx.rect(0, threshY, w, h - threshY);
         ctx.clip();
         buildPath();
-        ctx.strokeStyle = 'rgba(16, 185, 129, 0.9)';
+        ctx.strokeStyle = 'rgba(47, 158, 110, 0.95)';
         ctx.stroke();
         ctx.restore();
 
@@ -456,7 +467,7 @@
         ctx.rect(0, 0, w, threshY);
         ctx.clip();
         buildPath();
-        ctx.strokeStyle = 'rgba(239, 68, 68, 0.9)';
+        ctx.strokeStyle = 'rgba(216, 80, 60, 0.95)';
         ctx.stroke();
         ctx.restore();
     }
@@ -491,6 +502,7 @@
         els.visuals.fill.style.height = percentage + '%';
         var scale = 1 + (vol * EMOJI_MAX_SCALE);
         els.visuals.emoji.style.transform = 'scale(' + scale + ')';
+        els.visuals.levelValue.textContent = Math.round(percentage);
 
         var thresh = STATE.threshold;
 
@@ -546,24 +558,33 @@
         els.visuals.scoreValue.textContent = grade;
         els.visuals.scoreValue.className = 'vnl-stat-value ' + gradeClass;
         els.visuals.scoreDisplay.style.display = '';
+        els.visuals.gradeBadgeHeader.textContent = grade;
+        els.visuals.gradeBadgeHeader.style.display = '';
 
         // Color stages
         if (percentage > thresh) {
             els.visuals.stage.className = 'vnl-stage stage-loud';
+            els.visuals.stateLabel.textContent = 'Too loud!';
+            els.visuals.meterCol.className = 'vnl-meter-col vnl-tone-loud';
         } else if (percentage > thresh * WARNING_ZONE_RATIO) {
             els.visuals.fill.classList.add('vnl-fill-warn');
             els.visuals.fill.classList.remove('vnl-fill-calm');
             els.visuals.emoji.textContent = '\uD83D\uDE16'; // Confounded face
             els.visuals.stage.className = 'vnl-stage stage-warn';
+            els.visuals.stateLabel.textContent = 'Getting louder';
+            els.visuals.meterCol.className = 'vnl-meter-col vnl-tone-warn';
         } else {
             els.visuals.fill.classList.add('vnl-fill-calm');
             els.visuals.fill.classList.remove('vnl-fill-warn');
             els.visuals.emoji.textContent = '\uD83D\uDE0A'; // Smiling face
             els.visuals.stage.className = 'vnl-stage';
+            els.visuals.stateLabel.textContent = 'Nice and calm';
+            els.visuals.meterCol.className = 'vnl-meter-col vnl-tone-calm';
         }
 
         // Record graph point
         STATE.graphData.push(vol);
+        if (STATE.graphData.length > GRAPH_WINDOW_TICKS) STATE.graphData.shift();
 
         // Over-limit tracking
         if (vol > thresh / 100) {
@@ -626,6 +647,10 @@
         els.visuals.bestStreak.textContent = 'Best: 0:00';
         els.visuals.countdown.textContent = '5';
 
+        els.visuals.levelValue.textContent = '0';
+        els.visuals.stateLabel.textContent = 'Nice and calm';
+        els.visuals.meterCol.className = 'vnl-meter-col vnl-tone-calm';
+
         var canvas = els.visuals.graph;
         canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
         saveRecords();
@@ -633,6 +658,7 @@
 
     function updateThresholdUI() {
         els.visuals.limitLine.style.bottom = STATE.threshold + '%';
+        els.visuals.graphLimit.textContent = 'limit ' + STATE.threshold;
     }
 
     // --- Event Listeners ---
